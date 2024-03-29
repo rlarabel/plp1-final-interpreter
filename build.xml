@@ -1,0 +1,64 @@
+<?xml version = "1.0"?>
+<project name = "plp1basicinterpreter" basedir = "." default = "build">
+	<property name = "src.dir" value = "src"/>
+	<property name = "build.dir" value = "classes"/>
+	<property name = "lib.dir" value = "lib"/>
+    <property name = "grammar.file"    value="src/parser/PLp1.g4"/>
+
+	<path id = "master-classpath">
+        <pathelement path = "${build.dir}"/>
+		<pathelement path = "/usr/share/java/antlr4-runtime-4.7.2.jar"/>
+		<pathelement path = "${lib.dir}/junit4.jar"/>
+		<pathelement path = "${lib.dir}/hamcrest2.jar"/>
+	</path>
+
+	<target name="print-classpath">
+	  <pathconvert property="classpathInName" refid="master-classpath" />
+	  <echo>Classpath is ${classpathInName}</echo>
+    </target>
+
+	<target name = "info">
+		<echo>plp1scanner</echo>
+	</target>
+	
+	<target name = "build" description = "Compile source files">
+		<mkdir dir = "${build.dir}"/>
+		<javac destdir = "${build.dir}" debug = "true"
+			deprecation = "false" optimize = "false" failonerror = "true"
+			includeantruntime = "true">
+			<src path = "${src.dir}"/>
+			<classpath refid = "master-classpath"/>
+		</javac>
+
+	</target>
+	<target name = "build-jar">
+   		<jar destfile = "plp1.jar">
+        	<fileset dir="${build.dir}" includes="**/*.class"/>
+   		</jar>
+	</target>
+
+	<target name="generate" description="Generates the lexer and parser from the .g grammar file.">
+        <echo>Generating the lexer and parser...</echo>
+        <exec executable="antlr4" failonerror="true">
+            <arg value="-no-listener"/>
+            <arg value="-visitor"/>
+            <arg value="${grammar.file}"/>
+        </exec>
+
+        <!-- 
+            compile the generated parser and lexer source file to see
+            if there's no illegal code inside these source files
+        -->
+        <antcall target="build"/>
+    </target>
+
+	<target name = "clean" description = "Delete class files">
+		<delete>
+			<fileset dir = "${build.dir}">
+				<include name = "**/*.class"/>
+			</fileset>
+			<file name="plp1.jar"/>
+		</delete>
+	</target>
+
+</project>
