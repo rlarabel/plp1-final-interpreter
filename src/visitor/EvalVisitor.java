@@ -45,12 +45,15 @@ import ast.VarRefNode;
 import java.util.ArrayList;
 import java.util.List;
 import util.BooleanValue;
+import util.BuiltinFunction;
+import util.ClosureValue;
 import util.Environment;
 import util.FloatValue;
 import util.Function;
 import util.IntValue;
 import util.ListValue;
 import util.PLp1Error;
+import util.StringValue;
 import util.Value;
 import util.ValueFactory;
 import util.ValueFactory.ValueType;
@@ -106,9 +109,27 @@ public class EvalVisitor implements Visitor<Object> {
         Value v = (Value) n.getArgs().accept(this);
         @SuppressWarnings("unchecked")
         List<Value> argvals = (List<Value>) ((ListValue) v).get();
-
+        Value func = (Value) n.getFunc().accept(this);
         try {
-            return ((Function) n.getFunc().accept(this)).invoke(env, argvals);
+            if(func instanceof BuiltinFunction)
+                return ((BuiltinFunction) func).invoke(env, argvals);
+            else {
+                ClosureValue closure = (ClosureValue) func; 
+                List<String> vars = new ArrayList<String>();
+                if(closure.getParameters().size() == argvals.size() + 1) {
+                    argvals.add(closure);
+                } 
+                if(closure.getParameters().size() == argvals.size()) {
+                    for(Value val: closure.getParameters()) 
+                            vars.add(val.toString());
+                } else {
+                    throw new PLp1Error("Function call expected " + closure.getParameters().size() + " values but got " + argvals.size() + " values");
+                }
+                this.env = new Environment(vars, argvals, closure.getEnv());
+                Value returnVal = (Value) closure.getBody().accept(this);
+                this.env = closure.getEnv();
+                return returnVal;
+            }
         } catch (ClassCastException e) {
             SourceVisitor sv = new SourceVisitor();
             throw new PLp1Error("Invalid function call: " + n.accept(sv));
@@ -141,7 +162,17 @@ public class EvalVisitor implements Visitor<Object> {
 
     @Override
     public Value visit(FunctionDefinitionNode n) throws PLp1Error {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ListValue params = (ListValue) n.getParams().accept(this);
+        List<Value> vals = new ArrayList<Value>();
+        for(int i = 0; i < params.length(); ++i){
+            vals.add(params.first());
+            params = params.rest();
+        }
+        vals.add(valueFactory.makeValue(ValueType.STRING).addValue(n.getName()));
+        
+        ClosureValue closure = new ClosureValue(vals, n.getBody(), env);
+        env.put(n.getName(), closure);
+        return closure;
     }
 
     @Override
@@ -427,7 +458,14 @@ public class EvalVisitor implements Visitor<Object> {
 
     @Override
     public Value visit(ParameterListNode n) throws PLp1Error {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ArrayList<Value> list = new ArrayList<Value>();
+
+        for (ASTNode node : n.getIdList()) {
+            Value v = (Value) node.accept(this);
+            list.add(v);
+        }
+
+        return valueFactory.makeValue(ValueType.LIST).addValue(list);
     }
 
     @Override
@@ -467,6 +505,6 @@ public class EvalVisitor implements Visitor<Object> {
 
     @Override
     public Value visit(VarDefNode n) throws PLp1Error {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return (new StringValue()).addValue(n.getLabel());
     }
 }

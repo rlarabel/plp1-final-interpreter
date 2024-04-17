@@ -24,7 +24,7 @@ public class test_all {
                         "function g(x) { if (x==0) then false else f->(x-1) endif }\n" + //
                         "f->(3)"), "false");
     }
-
+    //function f(x) { if (x==0) then true else g->(x-1) endif } function g(x) { if (x==0) then false else f->(x-1) endif } f->(3)
     @Test
     public void funcTest4() {
         assertEquals(PLp1.interpret("function f(x) { let ([y 7]) { x + y }}\n" + //
