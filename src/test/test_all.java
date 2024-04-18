@@ -20,9 +20,7 @@ public class test_all {
 
     @Test
     public void funcTest3() {
-        assertEquals(PLp1.interpret("function f(x) { if (x==0) then true else g->(x-1) endif }\n" + //
-                        "function g(x) { if (x==0) then false else f->(x-1) endif }\n" + //
-                        "f->(3)"), "false");
+        assertEquals(PLp1.interpret("function f(x) { if (x==0) then true else g->(x-1) endif } function g(x) { if (x==0) then false else f->(x-1) endif } f->(3)"), "false");
     }
     //function f(x) { if (x==0) then true else g->(x-1) endif } function g(x) { if (x==0) then false else f->(x-1) endif } f->(3)
     @Test
@@ -34,10 +32,10 @@ public class test_all {
 
     @Test
     public void funcTest5() {
-        assertEquals(PLp1.interpret("function f(L,x) { switch { case emptyp->(L): 0 case first->(L) == x: (f->(rest->(L),x)) + 1 default : f->(rest->(L),x)}}\n" + //
-                        "f->([1,2,3,2,4,5,2],2)"), "3");
+        assertEquals(PLp1.interpret("function f(L,x) { switch { case emptyp->(L): 0 case first->(L) == x: (f->(rest->(L),x)) + 1 default : f->(rest->(L),x)}} f->([1,2,3,2,4,5,2],2)"), "3");
     }
-
+    //function f(L,x) { switch { case emptyp->(L): 0 case first->(L) == x: (f->(rest->(L),x)) + 1 default : f->(rest->(L),x)}} f->([1,2,3,2,4,5,2],2)
+    
     @Test
     public void lambdaTest1() {
         assertEquals(PLp1.interpret("(lambda () { 1 })->()"), "1");

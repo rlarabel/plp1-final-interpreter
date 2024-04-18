@@ -28,10 +28,14 @@ public class Environment extends HashMap<String,Value>{
 	public Value get(String var) throws PLp1Error {
 		if (containsKey(var)) 
 			return super.get(var);
-		else if (enclosingEnv.containsKey(var))
-			return enclosingEnv.get(var);
-		else
-			throw new PLp1Error("Undefined Variable: "+var);
+		else {
+			try {
+				return enclosingEnv.get(var);
+			}
+			catch (Exception e) {
+				throw new PLp1Error("Undefined Variable: "+var);
+			}
+		}
 	}
 	
 	public Value put(String var,Value val) {

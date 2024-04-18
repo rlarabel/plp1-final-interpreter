@@ -115,10 +115,7 @@ public class EvalVisitor implements Visitor<Object> {
                 return ((BuiltinFunction) func).invoke(env, argvals);
             else {
                 ClosureValue closure = (ClosureValue) func; 
-                List<String> vars = new ArrayList<String>();
-                if(closure.getParameters().size() == argvals.size() + 1) {
-                    argvals.add(closure);
-                } 
+                List<String> vars = new ArrayList<String>(); 
                 if(closure.getParameters().size() == argvals.size()) {
                     for(Value val: closure.getParameters()) 
                             vars.add(val.toString());
@@ -164,13 +161,14 @@ public class EvalVisitor implements Visitor<Object> {
     public Value visit(FunctionDefinitionNode n) throws PLp1Error {
         ListValue params = (ListValue) n.getParams().accept(this);
         List<Value> vals = new ArrayList<Value>();
-        for(int i = 0; i < params.length(); ++i){
+        int stopVal = params.length();
+        for(int i = 0; i < stopVal; ++i){
             vals.add(params.first());
             params = params.rest();
         }
-        vals.add(valueFactory.makeValue(ValueType.STRING).addValue(n.getName()));
         
         ClosureValue closure = new ClosureValue(vals, n.getBody(), env);
+        closure.setLabel(n.getName());
         env.put(n.getName(), closure);
         return closure;
     }
@@ -182,7 +180,18 @@ public class EvalVisitor implements Visitor<Object> {
 
     @Override
     public Value visit(LambdaNode n) throws PLp1Error {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ListValue params = (ListValue) n.getParams().accept(this);
+        List<Value> vals = new ArrayList<Value>();
+        int stopVal = params.length();
+        for(int i = 0; i < stopVal; ++i){
+            vals.add(params.first());
+            params = params.rest();
+        }
+        
+        ClosureValue closure = new ClosureValue(vals, n.getBody(), env);
+        closure.setLabel(n.getBody().toString());
+        //env.put(n.getName(), closure);
+        return closure;    
     }
 
     @Override
@@ -224,11 +233,7 @@ public class EvalVisitor implements Visitor<Object> {
 
     @Override
     public Value visit(VarRefNode n) throws PLp1Error {
-        if (env.containsKey(n.getId())) {
-            return env.get(n.getId());
-        } else {
-            throw new PLp1Error("Undefined variable: " + n.getId());
-        }
+        return env.get(n.getId());
     }
 
     @Override

@@ -43,7 +43,7 @@ public class PLp1 {
 	{
 	    System.out.print( "====> ");
 	    try {
-			buildAST(CharStreams.fromString(getUserInput()));
+			System.out.println(interpret(CharStreams.fromString(getUserInput())));
 		} catch (IOException e) {
 			System.out.println("Error reading input");
 		} catch (Error e) {

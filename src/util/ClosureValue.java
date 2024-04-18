@@ -16,12 +16,17 @@ public class ClosureValue extends Value {
 	private List<Value> parameters;
     private ASTNode body; // Node represents the function body (e.g., an AST)
     private Environment env;
+    private String label;
 
     public ClosureValue(List<Value> parameters, ASTNode body, Environment env) {
         this.parameters = parameters;
         this.body = body;
         this.env = env;
     }
+    
+    public void setLabel(String label) {
+        this.label = label;
+    }  
 
     public List<Value> getParameters() {
         return parameters;
@@ -40,11 +45,10 @@ public class ClosureValue extends Value {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'addValue'");
     }
-
+  
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'toString'");
+        return label;
     }
 
 }
