@@ -25,8 +25,7 @@ public class test_all {
     //function f(x) { if (x==0) then true else g->(x-1) endif } function g(x) { if (x==0) then false else f->(x-1) endif } f->(3)
     @Test
     public void funcTest4() {
-        assertEquals(PLp1.interpret("function f(x) { let ([y 7]) { x + y }}\n" + //
-                        "f->(4)"), "11");
+        assertEquals(PLp1.interpret("function f(x) { let ([y 7]) { x + y }} f->(4)"), "11");
     }
 
 
@@ -93,7 +92,7 @@ public class test_all {
 
     @Test
     public void letTest6() {
-        assertEquals(PLp1.interpret("let ([x let ([y 3]) { y + 7 }] [z let ([y 4]) { y + 7 }]) { let ([y {x + z}]) { x + y + z}}"), "42");
+        assertEquals(PLp1.interpret("let ([x let ([y 3]) { y + 7 }] [z let ([y 4]) { y + 7 }]) { let ([y (x + z)]) { x + y + z}}"), "42");
     }
 
 }

@@ -258,9 +258,10 @@ public class ASTGenerator extends AbstractParseTreeVisitor<ASTNode> implements P
     @Override
     public ASTNode visitLetDecls(PLp1Parser.LetDeclsContext ctx) {
         ASTNodeBuilder builder = factory.makeASTNodeBuilder(ASTNodeType.LETDECLLIST);
-
-        for (ParseTree t : ctx.children) {
-            builder.addChild(t.accept(this));
+        if(ctx.children != null) {
+            for (ParseTree t : ctx.children) {
+                builder.addChild(t.accept(this));
+            }
         }
 
         return builder.build();

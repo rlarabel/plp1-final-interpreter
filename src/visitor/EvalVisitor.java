@@ -113,7 +113,7 @@ public class EvalVisitor implements Visitor<Object> {
         try {
             if(func instanceof BuiltinFunction)
                 return ((BuiltinFunction) func).invoke(env, argvals);
-            else {
+            else if(func instanceof ClosureValue){
                 ClosureValue closure = (ClosureValue) func; 
                 List<String> vars = new ArrayList<String>(); 
                 if(closure.getParameters().size() == argvals.size()) {
@@ -126,7 +126,8 @@ public class EvalVisitor implements Visitor<Object> {
                 Value returnVal = (Value) closure.getBody().accept(this);
                 this.env = closure.getEnv();
                 return returnVal;
-            }
+            } else
+                return func;
         } catch (ClassCastException e) {
             SourceVisitor sv = new SourceVisitor();
             throw new PLp1Error("Invalid function call: " + n.accept(sv));
@@ -190,7 +191,6 @@ public class EvalVisitor implements Visitor<Object> {
         
         ClosureValue closure = new ClosureValue(vals, n.getBody(), env);
         closure.setLabel(n.getBody().toString());
-        //env.put(n.getName(), closure);
         return closure;    
     }
 
@@ -244,8 +244,8 @@ public class EvalVisitor implements Visitor<Object> {
         List<Value> vals = new ArrayList<Value>();
         int stopVal = varList.length();
         for(int i = 0; i < stopVal; ++i){
-            vars.add(((ListValue) ((ListValue) varList.first()).rest()).first().toString());
-            vals.add (((ListValue) varList.first()).first());
+            vals.add(((ListValue) ((ListValue) varList.first()).rest()).first());
+            vars.add (((ListValue) varList.first()).first().toString());
             varList = varList.rest();
         }
 
@@ -493,9 +493,7 @@ public class EvalVisitor implements Visitor<Object> {
     @Override
     public Value visit(LetDeclNode n) throws PLp1Error {
         ListValue returnVal = new ListValue();
-        StringValue var = new StringValue(); 
-        var.addValue(n.getVar());
-        returnVal.append(var);
+        returnVal.append((Value) n.getVar().accept(this));
         returnVal.append((Value) n.getValueExpr().accept(this));
         return returnVal;
     }
@@ -508,7 +506,6 @@ public class EvalVisitor implements Visitor<Object> {
         }
         return returnVal;
     }
-
 
     @Override
     public Value visit(SwitchCaseListNode n) throws PLp1Error {
