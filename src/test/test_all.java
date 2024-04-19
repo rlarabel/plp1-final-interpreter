@@ -65,17 +65,17 @@ public class test_all {
 
     @Test
     public void lambdaTest6() {
-        assertEquals(PLp1.interpret("(lambda (x) { (lambda (y) { x + ((lambda (y) { x + y })->(7)) })->(6) })->(5)"), "18");
+        assertEquals(PLp1.interpret("(lambda (x) { (lambda (y) { x + ((lambda (y) { x + y })->(7)) })->(6) })->(5)"), "17");
     }
 
     @Test
     public void letTest1() {
-        assertEquals(PLp1.interpret("(lambda () { 1 })->()"), "1");
+        assertEquals(PLp1.interpret("(let () { 1 })->()"), "1");
     }
 
     @Test
     public void letTest2() {
-        assertEquals(PLp1.interpret("let ([x 4]) { x }"), "1");
+        assertEquals(PLp1.interpret("let ([x 4]) { x }"), "4");
     }
 
     @Test
@@ -95,7 +95,7 @@ public class test_all {
 
     @Test
     public void letTest6() {
-        assertEquals(PLp1.interpret("let ([x let ([y 3]) { y + 7 }] [z let ([y 4]) { y + 7 }]) { let ([y x + z]) { x + y + z}}"), "42");
+        assertEquals(PLp1.interpret("let ([x let ([y 3]) { y + 7 }] [z let ([y 4]) { y + 7 }]) { let ([y {x + z}]) { x + y + z}}"), "42");
     }
 
 }
