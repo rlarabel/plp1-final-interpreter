@@ -238,7 +238,24 @@ public class EvalVisitor implements Visitor<Object> {
 
     @Override
     public Value visit(LetNode n) throws PLp1Error {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Environment oldenv = env;
+        ListValue varList = (ListValue) n.getLetVarDecls().accept(this);
+        List<String> vars = new ArrayList<String>();
+        List<Value> vals = new ArrayList<Value>();
+        int stopVal = varList.length();
+        for(int i = 0; i < stopVal; ++i){
+            vars.add(((ListValue) ((ListValue) varList.first()).rest()).first().toString());
+            vals.add (((ListValue) varList.first()).first());
+            varList = varList.rest();
+        }
+
+        for(int i  = 0; i < vars.size(); ++i ) {
+            this.env.put(vars.get(i), vals.get(i));
+        }
+
+        Value returnVal = (Value) n.getBody().accept(this);
+        this.env = oldenv;
+        return returnVal;
     }
 
     @Override
@@ -475,13 +492,23 @@ public class EvalVisitor implements Visitor<Object> {
 
     @Override
     public Value visit(LetDeclNode n) throws PLp1Error {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ListValue returnVal = new ListValue();
+        StringValue var = new StringValue(); 
+        var.addValue(n.getVar());
+        returnVal.append(var);
+        returnVal.append((Value) n.getValueExpr().accept(this));
+        return returnVal;
     }
 
     @Override
     public Value visit(LetDeclListNode n) throws PLp1Error {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ListValue returnVal = new ListValue();
+        for(ASTNode node: n.getDecls()) {
+            returnVal.append((Value) node.accept(this));
+        }
+        return returnVal;
     }
+
 
     @Override
     public Value visit(SwitchCaseListNode n) throws PLp1Error {
